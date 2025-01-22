@@ -179,7 +179,7 @@ const ProductList = () => {
               rowCount={totalProducts}
               pagination
               onPageChange={(params) => handlePage(params)}
-              rowsPerPageOption={[5, 10, 20]}
+              rowsPerPageOptions={[5, 10, 20]}
               onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
               getRowId={(row) => row.id || `${row.name}-${Math.random()}`}
               onRowClick={(params)=>handleProductClick(params.row)}
