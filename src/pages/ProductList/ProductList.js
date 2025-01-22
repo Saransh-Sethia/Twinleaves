@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 const ProductList = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(20)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -123,9 +123,7 @@ const ProductList = () => {
       field: "mrp",
       headerName: "Price",
       width: 200,
-      valueGetter: (res) => {
-        return `₹${res.mrp.mrp || 0}`;
-      },
+      valueGetter: (params) => `₹ ${params.mrp}`
     },
     {
       field: "images",
@@ -176,8 +174,9 @@ const ProductList = () => {
               rows={products}
               columns={columns}
               pageSize={pageSize}
-              rowCount={totalProducts}
               pagination
+              rowCount={totalProducts}
+              sortModel={sorting}
               onPageChange={(params) => handlePage(params)}
               rowsPerPageOptions={[5, 10, 20]}
               onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}

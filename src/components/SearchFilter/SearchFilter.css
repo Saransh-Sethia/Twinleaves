@@ -1,5 +1,8 @@
 .search-heading{
     color: #650169;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .search-filter{
