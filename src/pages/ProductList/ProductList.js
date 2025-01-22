@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 const ProductList = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(20);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -26,7 +26,7 @@ const ProductList = () => {
   const performAPI = async () => {
     try {
       const response = await axios.get(
-        "https://catalog-management-system-dev-ak3ogf6zea-uc.a.run.app/cms/products"
+        `https://catalog-management-system-dev-ak3ogf6zea-uc.a.run.app/cms/products?page=${page + 1}`
       );
       const result = await response.data;
       console.log(result);
@@ -54,7 +54,7 @@ const ProductList = () => {
   };
   useEffect(() => {
     performAPI();
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     let filteredProducts = allProducts
@@ -78,12 +78,16 @@ const ProductList = () => {
       });
     }
 
-    setProducts(filteredProducts);
-  }, [allProducts, selectedCategory, sorting,searchTerm]);
+    setProducts(filteredProducts.slice(page* pageSize, (page + 1) * pageSize));
+  }, [allProducts, selectedCategory, sorting, searchTerm, page]);
 
   const handleImageError = (e) => {
     e.target.src = bread;
   };
+
+  const handlePage = (params) => {
+    setPage(params.page)
+  }
 
   const handleSearchTerm = (term) => {
     setSearchTerm(term);
@@ -102,6 +106,14 @@ const ProductList = () => {
 
   const handleProductClick = (product) => {
     navigate(`/product/${product.id}`, {state: {product}})
+  };
+
+  if(loading){
+    return <h2>Loading...</h2>
+  }
+
+  if(error){
+    return <h2>Error: {error.message}</h2>
   }
 
   const columns = [
@@ -166,6 +178,7 @@ const ProductList = () => {
               pageSize={pageSize}
               rowCount={totalProducts}
               pagination
+              onPageChange={(params) => handlePage(params)}
               rowsPerPageOption={[5, 10, 20]}
               onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
               getRowId={(row) => row.id || `${row.name}-${Math.random()}`}
