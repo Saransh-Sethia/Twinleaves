@@ -1,0 +1,21 @@
+.category-filter{
+    display: flex;
+    flex-direction: column;
+    padding:10px
+}
+
+.category-label{
+    color:#650169;
+    margin-bottom: 10px;
+}
+
+.category-select{
+    padding:8px;
+    border:1px solid #ccc;
+    border-radius: 4px;
+    outline:none;
+}
+
+.category-select:focus{
+    border-color: #650169;
+}

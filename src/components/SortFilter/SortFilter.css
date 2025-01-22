@@ -1,0 +1,16 @@
+.sort-label{
+    margin-top: 20px;
+    color:#650169
+}
+
+.sort-select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    margin-top: 10px;
+  }
+  
+  .sort-select:focus {
+    border-color: #650169;
+  }

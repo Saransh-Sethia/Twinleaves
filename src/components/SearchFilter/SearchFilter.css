@@ -1,0 +1,18 @@
+.search-heading{
+    color: #650169;
+}
+
+.search-filter{
+    padding:10px
+}
+.filter {
+    border: none;
+    border-bottom: 1px solid #ccc;
+    padding: 5px;
+    margin-bottom: 20px;
+    outline: none;
+  }
+  
+  .filter::placeholder {
+    color: #aaa;
+  }

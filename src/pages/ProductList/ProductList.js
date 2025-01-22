@@ -4,29 +4,98 @@ import axios from "axios";
 import icon from "../../assets/icon.png";
 import bread from "../../assets/bread.png";
 import "./ProductList.css";
+import SearchFilter from "../../components/SearchFilter/SearchFilter";
+import CategoryFilter from "../../components/CategoryFilter/CategoryFilter";
+import SortFilter from "../../components/SortFilter/SortFilter";
 
 const ProductList = () => {
+  const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [pageSize, setPageSize] = useState(5);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [sorting, setSorting] = useState([{ field: "mrp.mrp", sort: "asc" }]);
+  const [page, setPage] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const performAPI = async () => {
-    const response = await axios.get(
-      "https://catalog-management-system-dev-ak3ogf6zea-uc.a.run.app/cms/products"
-    );
-    const result = await response.data;
-    let resultantArr = [];
-    resultantArr.push(result);
-    const res = resultantArr[0].products;
+    try {
+      const response = await axios.get(
+        "https://catalog-management-system-dev-ak3ogf6zea-uc.a.run.app/cms/products"
+      );
+      const result = await response.data;
+      console.log(result);
+      let resultantArr = [];
+      resultantArr.push(result);
+      const res = resultantArr[0].products;
+      const productsWithID = res.map((product, id) => ({
+        ...product,
+        id: id,
+      }));
+      setAllProducts(productsWithID || []);
+      setTotalProducts(result.totalResults || 0);
+      const cat = new Set(
+        productsWithID.map((product) => product.main_category)
+      );
+      setCategories([...cat]);
+      console.log("result", res);
 
-    console.log("result", res);
-    setProducts(res);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data", error);
+      setError(error);
+      setLoading(false);
+    }
   };
   useEffect(() => {
     performAPI();
   }, []);
 
+  useEffect(() => {
+    let filteredProducts = allProducts
+      .filter((product) => product.name && product.name.toLowerCase().includes(searchTerm.toLocaleLowerCase()))
+      .filter(
+        (product) =>
+          selectedCategory === "" || product.main_category === selectedCategory
+      );
+
+    if (sorting.length > 0) {
+      const { field, sort } = sorting[0];
+      filteredProducts = filteredProducts.sort((a, b) => {
+        const aa = field.split(".").reduce((o, i) => o[i], a) || 0;
+        const bb = field.split(".").reduce((o, i) => o[i], b) || 0;
+
+        if (sort === "asc") {
+          return aa - bb;
+        } else {
+          return bb - aa;
+        }
+      });
+    }
+
+    setProducts(filteredProducts);
+  }, [allProducts, selectedCategory, sorting,searchTerm]);
+
   const handleImageError = (e) => {
     e.target.src = bread;
+  };
+
+  const handleSearchTerm = (term) => {
+    setSearchTerm(term);
+    setPage(0);
+  };
+
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
+    setPage(0);
+  };
+
+  const handleSortModelChange = (model) => {
+    setSorting(model);
+    setPage(0);
   };
 
   const columns = [
@@ -64,17 +133,38 @@ const ProductList = () => {
         <img src={icon} alt="icon-image" className="app-icon" />
         <h1>Satisfy your needs within minutes</h1>
       </div>
-      <div className="main">
-        <div style={{ height: 400, width: "100%" }}>
-          <DataGrid
-            rows={products}
-            columns={columns}
-            pageSize={pageSize}
-            pagination
-            rowsPerPageOption={[5, 10, 20]}
-            onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-            getRowId={(row) => row.id || `${row.name}-${Math.random()}`}
+      <div className="content">
+        <div className="sidebar">
+          <SearchFilter
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            handleSearchTerm={handleSearchTerm}
           />
+          <CategoryFilter
+            categories={categories}
+            selectedCategory={selectedCategory}
+            handleCategoryChange={handleCategoryChange}
+            setSelectedCategory={setSelectedCategory}
+          />
+          <SortFilter
+            sorting={sorting}
+            setSorting={setSorting}
+            handleSortModelChange={handleSortModelChange}
+          />
+        </div>
+        <div className="main">
+          <div style={{ height: 400, width: "100%" }}>
+            <DataGrid
+              rows={products}
+              columns={columns}
+              pageSize={pageSize}
+              rowCount={totalProducts}
+              pagination
+              rowsPerPageOption={[5, 10, 20]}
+              onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+              getRowId={(row) => row.id || `${row.name}-${Math.random()}`}
+            />
+          </div>
         </div>
       </div>
     </div>
