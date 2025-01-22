@@ -7,6 +7,7 @@ import "./ProductList.css";
 import SearchFilter from "../../components/SearchFilter/SearchFilter";
 import CategoryFilter from "../../components/CategoryFilter/CategoryFilter";
 import SortFilter from "../../components/SortFilter/SortFilter";
+import { useNavigate } from "react-router-dom";
 
 const ProductList = () => {
   const [allProducts, setAllProducts] = useState([]);
@@ -20,6 +21,7 @@ const ProductList = () => {
   const [sorting, setSorting] = useState([{ field: "mrp.mrp", sort: "asc" }]);
   const [page, setPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate()
 
   const performAPI = async () => {
     try {
@@ -98,6 +100,10 @@ const ProductList = () => {
     setPage(0);
   };
 
+  const handleProductClick = (product) => {
+    navigate(`/product/${product.id}`, {state: {product}})
+  }
+
   const columns = [
     { field: "name", headerName: "Name", width: 300 },
     { field: "main_category", headerName: "Category", width: 200 },
@@ -163,6 +169,7 @@ const ProductList = () => {
               rowsPerPageOption={[5, 10, 20]}
               onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
               getRowId={(row) => row.id || `${row.name}-${Math.random()}`}
+              onRowClick={(params)=>handleProductClick(params.row)}
             />
           </div>
         </div>
